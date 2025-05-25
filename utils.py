@@ -76,12 +76,24 @@ def generate_map(
         # Project to UTM CRS
         df = df.to_crs(utm_crs)
         
-        # Create plot
+        # Get style settings
+        draw_settings = STYLES[style].copy()
+        if custom_settings:
+            # Update only the provided settings
+            for category, settings in custom_settings.items():
+                if category in draw_settings:
+                    draw_settings[category].update(settings)
+        
+        # Create plot with proper settings
         fig = Plot(
             df=df,
             aoi_bounds=[minx, miny, maxx, maxy],
-            draw_settings=STYLES[style] if custom_settings is None else custom_settings
+            draw_settings=draw_settings
         )
+        
+        # Ensure the plot is properly configured
+        fig.fig.set_size_inches(12, 12)
+        fig.fig.set_dpi(300)
         
         return fig, df
         

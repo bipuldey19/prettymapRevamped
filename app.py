@@ -191,7 +191,12 @@ if st.button("Generate Map", type="primary"):
                 
                 # Display the generated map
                 st.markdown("### Your Generated Map")
-                st.pyplot(fig.plot_all())
+                
+                # Create a container for the map
+                map_container = st.container()
+                with map_container:
+                    # Plot the map with proper size
+                    st.pyplot(fig.plot_all(), use_container_width=True)
                 
                 # Download buttons
                 st.markdown("### Download Options")
@@ -199,7 +204,7 @@ if st.button("Generate Map", type="primary"):
                 with col1:
                     # Save and download the image
                     with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp:
-                        fig.plot_all().savefig(tmp.name)
+                        fig.plot_all().savefig(tmp.name, dpi=300, bbox_inches='tight')
                         with open(tmp.name, 'rb') as f:
                             st.download_button(
                                 "Download Map Image",
