@@ -32,15 +32,20 @@ def generate_map(
     
     # Get bounds from geometry
     minx, miny, maxx, maxy = geom.bounds
+
+    # Calculate the centroid of the geometry
+    centroid = geom.centroid
+    lon, lat = centroid.x, centroid.y
     
     # Create a box geometry from bounds
     bbox = box(minx, miny, maxx, maxy)
     
-    # Get OSM geometries directly using the bounds
+    # Get OSM geometries using the bounds and centroid for CRS determination
     landcover = custom_landcover if custom_landcover else get_default_landcover()
     df = get_osm_geometries(
         aoi=bbox,
-        landcover_classes=landcover
+        landcover_classes=landcover,
+        center=(lat, lon) # Pass centroid coordinates
     )
     
     # Get style settings
@@ -95,7 +100,7 @@ def generate_map(
             if "text_rotation" in plot_options:
                 plot_params["text_rotation"] = plot_options["text_rotation"]
 
-    print("Plotting parameters:", plot_params)
+    # print("Plotting parameters:", plot_params) # Keep for debugging if needed
     # Create plot
     fig = Plot(**plot_params)
     
