@@ -188,12 +188,26 @@ if st.button("Generate Map", type="primary"):
                     custom_landcover=default_landcover
                 )
                 
-                # Create a container for the map
-                map_container = st.container()
+                # Debug: Show a sample of the data
+                st.markdown("#### OSM Data Sample (first 5 rows)")
+                st.write(df.head())
+                st.markdown(f"**Number of features:** {len(df)}")
+                st.markdown(f"**CRS:** {df.crs}")
+                
+                # Debug: Direct plot of the GeoDataFrame
+                st.markdown("#### Direct Plot of OSM Data (for debugging)")
+                import matplotlib.pyplot as plt
+                fig_gdf, ax = plt.subplots(figsize=(6, 6))
+                df.plot(ax=ax)
+                st.pyplot(fig_gdf)
+                plt.close(fig_gdf)
+                
+                # Debug: Show style settings used
+                st.markdown("#### Style Settings Used")
+                st.write(default_style)
                 
                 # Save the map to a temporary file
                 with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp:
-                    # Save with high DPI and tight bounding box
                     fig.plot_all().savefig(
                         tmp.name,
                         dpi=300,
@@ -203,12 +217,11 @@ if st.button("Generate Map", type="primary"):
                     )
                     
                     # Display the saved image in the container
-                    with map_container:
-                        st.image(
-                            tmp.name,
-                            use_container_width=True,
-                            caption="Generated Map"
-                        )
+                    st.image(
+                        tmp.name,
+                        use_container_width=True,
+                        caption="Generated Map"
+                    )
                     
                     # Download buttons
                     st.markdown("### Download Options")
