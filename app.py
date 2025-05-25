@@ -188,12 +188,27 @@ if st.button("Generate Map", type="primary"):
                     custom_landcover=default_landcover
                 )
                 
+                # Create a container for the map
+                map_container = st.container()
+                
                 # Save the map to a temporary file
                 with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp:
-                    fig.plot_all().savefig(tmp.name, dpi=300, bbox_inches='tight')
+                    # Save with high DPI and tight bounding box
+                    fig.plot_all().savefig(
+                        tmp.name,
+                        dpi=300,
+                        bbox_inches='tight',
+                        pad_inches=0.1,
+                        facecolor='white'
+                    )
                     
-                    # Display the saved image
-                    st.image(tmp.name, use_column_width=True)
+                    # Display the saved image in the container
+                    with map_container:
+                        st.image(
+                            tmp.name,
+                            use_container_width=True,
+                            caption="Generated Map"
+                        )
                     
                     # Download buttons
                     st.markdown("### Download Options")

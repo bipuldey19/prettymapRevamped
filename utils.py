@@ -91,9 +91,14 @@ def generate_map(
             draw_settings=draw_settings
         )
         
-        # Ensure the plot is properly configured
+        # Configure the plot
         fig.fig.set_size_inches(12, 12)
         fig.fig.set_dpi(300)
+        
+        # Ensure the plot is properly configured
+        for ax in fig.fig.axes:
+            ax.set_facecolor('white')
+            ax.grid(False)
         
         return fig, df
         
