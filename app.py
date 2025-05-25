@@ -29,6 +29,10 @@ if 'map_fig' not in st.session_state:
 if 'map_data' not in st.session_state:
     st.session_state.map_data = None
 
+# Initialize default settings
+default_style = get_default_style()
+default_landcover = get_default_landcover()
+
 # Create a single column layout
 col = st.container()
 
@@ -123,8 +127,6 @@ with col:
 
     # Additional settings in expandable sections
     with st.expander("Style Settings", expanded=False):
-        default_style = get_default_style()
-        
         # Create columns for style settings
         style_cols = st.columns(2)
         for i, (category, settings) in enumerate(default_style.items()):
@@ -151,8 +153,6 @@ with col:
                         ).split(",")
 
     with st.expander("Landcover Settings", expanded=False):
-        default_landcover = get_default_landcover()
-        
         # Create columns for landcover settings
         landcover_cols = st.columns(2)
         for i, (category, settings) in enumerate(default_landcover.items()):
