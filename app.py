@@ -118,72 +118,70 @@ with col2:
         index=0
     )
     
-    # Additional settings in an expander
-    with st.expander("Advanced Settings", expanded=False):
-        # Style settings
-        st.markdown("#### Style Settings")
-        default_style = get_default_style()
-        
-        # Create expandable sections for each style category
-        for category, settings in default_style.items():
-            with st.expander(f"{category.title()} Settings", expanded=False):
-                for key, value in settings.items():
-                    if isinstance(value, (int, float)):
-                        default_style[category][key] = st.number_input(
-                            f"{key}",
-                            value=value,
-                            key=f"style_{category}_{key}"
-                        )
-                    elif isinstance(value, str) and value.startswith('#'):
-                        # Color picker for hex colors
-                        default_style[category][key] = st.color_picker(
-                            f"{key}",
-                            value=value,
-                            key=f"style_{category}_{key}"
-                        )
-                    elif isinstance(value, str):
-                        default_style[category][key] = st.text_input(
-                            f"{key}",
-                            value=value,
-                            key=f"style_{category}_{key}"
-                        )
-                    elif isinstance(value, list):
-                        if all(isinstance(x, str) and x.startswith('#') for x in value):
-                            # Color picker for lists of hex colors
-                            colors = st.multiselect(
-                                f"{key}",
-                                options=value,
-                                default=value,
-                                key=f"style_{category}_{key}"
-                            )
-                            default_style[category][key] = colors if colors else value
-                        else:
-                            default_style[category][key] = st.text_input(
-                                f"{key} (comma-separated)",
-                                value=",".join(value),
-                                key=f"style_{category}_{key}"
-                            ).split(",")
-        
-        # Landcover settings
-        st.markdown("#### Landcover Settings")
-        default_landcover = get_default_landcover()
-        
-        for category, settings in default_landcover.items():
-            with st.expander(f"{category.title()} Landcover", expanded=False):
-                for key, value in settings.items():
-                    if isinstance(value, bool):
-                        default_landcover[category][key] = st.checkbox(
-                            f"{key}",
-                            value=value,
-                            key=f"landcover_{category}_{key}"
-                        )
-                    elif isinstance(value, list):
-                        default_landcover[category][key] = st.multiselect(
-                            f"{key}",
-                            options=value,
-                            default=value,
-                            key=f"landcover_{category}_{key}"
-                        )
+    # Additional settings
+    st.markdown("### Style Settings")
+    default_style = get_default_style()
+    
+    # Create sections for each style category
+    for category, settings in default_style.items():
+        st.markdown(f"#### {category.title()}")
+        for key, value in settings.items():
+            if isinstance(value, (int, float)):
+                default_style[category][key] = st.number_input(
+                    f"{key}",
+                    value=value,
+                    key=f"style_{category}_{key}"
+                )
+            elif isinstance(value, str) and value.startswith('#'):
+                # Color picker for hex colors
+                default_style[category][key] = st.color_picker(
+                    f"{key}",
+                    value=value,
+                    key=f"style_{category}_{key}"
+                )
+            elif isinstance(value, str):
+                default_style[category][key] = st.text_input(
+                    f"{key}",
+                    value=value,
+                    key=f"style_{category}_{key}"
+                )
+            elif isinstance(value, list):
+                if all(isinstance(x, str) and x.startswith('#') for x in value):
+                    # Color picker for lists of hex colors
+                    colors = st.multiselect(
+                        f"{key}",
+                        options=value,
+                        default=value,
+                        key=f"style_{category}_{key}"
+                    )
+                    default_style[category][key] = colors if colors else value
+                else:
+                    default_style[category][key] = st.text_input(
+                        f"{key} (comma-separated)",
+                        value=",".join(value),
+                        key=f"style_{category}_{key}"
+                    ).split(",")
+    
+    # Landcover settings
+    st.markdown("### Landcover Settings")
+    default_landcover = get_default_landcover()
+    
+    for category, settings in default_landcover.items():
+        st.markdown(f"#### {category.title()}")
+        for key, value in settings.items():
+            if isinstance(value, bool):
+                default_landcover[category][key] = st.checkbox(
+                    f"{key}",
+                    value=value,
+                    key=f"landcover_{category}_{key}"
+                )
+            elif isinstance(value, list):
+                default_landcover[category][key] = st.multiselect(
+                    f"{key}",
+                    options=value,
+                    default=value,
+                    key=f"landcover_{category}_{key}"
+                )
 
 # Generate map button
 if st.button("Generate Map", type="primary"):
