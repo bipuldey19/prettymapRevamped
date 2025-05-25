@@ -57,7 +57,7 @@ with col:
     # Display the map and capture drawn features
     drawn_data = st_folium(
         m,
-        height=550,
+        height=400,
         width=700,
         returned_objects=["last_active_drawing"]
     )
