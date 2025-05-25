@@ -1,6 +1,6 @@
 import streamlit as st
 import folium
-from streamlit_folium import folium_static
+from streamlit_folium import st_folium
 import json
 import tempfile
 import os
@@ -50,15 +50,16 @@ with col1:
         }
     ).add_to(m)
     
-    # Display the map
-    folium_static(m, height=600)
+    # Display the map and capture drawn features
+    drawn_data = st_folium(
+        m,
+        height=600,
+        returned_objects=["last_active_drawing"]
+    )
     
-    # Get drawn features
-    drawn_features = m._children.get('draw', None)
-    if drawn_features:
-        drawn_data = drawn_features.data
-        if drawn_data:
-            st.session_state.drawn_polygon = drawn_data[0]
+    # Update session state with drawn polygon
+    if drawn_data and drawn_data.get("last_active_drawing"):
+        st.session_state.drawn_polygon = drawn_data["last_active_drawing"]
 
 with col2:
     st.subheader("Settings")
