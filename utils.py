@@ -8,6 +8,7 @@ from prettymapp.osm import get_osm_geometries
 from prettymapp.plotting import Plot
 from prettymapp.settings import STYLES, LANDCOVER_CLASSES
 import numpy as np
+import streamlit as st
 
 def get_available_themes() -> List[str]:
     """Get list of available themes."""
@@ -63,15 +64,33 @@ def generate_map(
         
         # Get bounds
         minx, miny, maxx, maxy = geom.bounds
+        st.info(f"Bounding box: {minx}, {miny}, {maxx}, {maxy}")
         
         # Create a box geometry from bounds
         bbox = box(minx, miny, maxx, maxy)
         
+        # Ensure geometry is in WGS84
+        gdf = gpd.GeoDataFrame(geometry=[bbox], crs="EPSG:4326")
+        if gdf.crs != "EPSG:4326":
+            gdf = gdf.to_crs("EPSG:4326")
+        bbox = gdf.geometry.iloc[0]
+        st.info(f"CRS used for OSM query: {gdf.crs}")
+        
+        # Check landcover settings
+        if not custom_landcover or not any(
+            v if isinstance(v, bool) else any(v) for cat in custom_landcover.values() for v in ([cat] if isinstance(cat, bool) else cat.values())
+        ):
+            st.warning("No landcover features are enabled. The map may be empty.")
+        else:
+            st.info(f"Landcover settings: {custom_landcover}")
+        
         # Determine UTM CRS
         utm_crs = determine_utm_crs(bbox)
+        st.info(f"UTM CRS for plotting: {utm_crs}")
         
         # Get OSM geometries
         df = get_osm_geometries(aoi=bbox, landcover_classes=custom_landcover)
+        st.info(f"OSM data returned: {len(df)} features")
         
         # Project to UTM CRS
         df = df.to_crs(utm_crs)
@@ -103,7 +122,8 @@ def generate_map(
         return fig, df
         
     except Exception as e:
-        raise Exception(f"Error generating map: {str(e)}")
+        st.error(f"Error generating map: {str(e)}")
+        raise
 
 def save_map_data(df: gpd.GeoDataFrame, filename: str) -> str:
     """Save map data to GeoJSON file."""
