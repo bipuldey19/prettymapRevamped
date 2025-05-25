@@ -30,11 +30,11 @@ def generate_map(
     geom = shape(geometry)
     
     # Get bounds from geometry
-    bounds = geom.bounds
+    minx, miny, maxx, maxy = geom.bounds
     
     # Create AOI from bounds
     aoi = get_aoi(
-        bounds=bounds,
+        bbox=[minx, miny, maxx, maxy],
         rectangular=True
     )
     
