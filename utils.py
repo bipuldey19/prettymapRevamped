@@ -95,13 +95,9 @@ def generate_map(
         # Project to UTM CRS
         df = df.to_crs(utm_crs)
         
-        # Get style settings
+        # Use only the default style for the selected theme (no custom merging)
         draw_settings = STYLES[style].copy()
-        if custom_settings:
-            # Update only the provided settings
-            for category, settings in custom_settings.items():
-                if category in draw_settings:
-                    draw_settings[category].update(settings)
+        st.info(f"Using default style for theme: {style}")
         
         # Create plot with proper settings
         fig = Plot(
@@ -113,8 +109,6 @@ def generate_map(
         # Configure the plot
         fig.fig.set_size_inches(12, 12)
         fig.fig.set_dpi(300)
-        
-        # Ensure the plot is properly configured
         for ax in fig.fig.axes:
             ax.set_facecolor('white')
             ax.grid(False)
