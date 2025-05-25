@@ -48,13 +48,50 @@ def generate_map(
     if custom_settings:
         draw_settings.update(custom_settings)
     
+    # Prepare plotting parameters for the Plot constructor
+    plot_params = {
+        "df": df,
+        "aoi_bounds": [minx, miny, maxx, maxy],
+        "draw_settings": draw_settings,
+    }
+    
+    if plot_options:
+        # Add plotting options to plot_params if they exist in plot_options
+        if "shape" in plot_options:
+            plot_params["shape"] = plot_options["shape"]
+            
+        if "bg_shape" in plot_options:
+            plot_params["bg_shape"] = plot_options["bg_shape"]
+        if "bg_color" in plot_options:
+            plot_params["bg_color"] = plot_options["bg_color"]
+        if "bg_buffer" in plot_options:
+            plot_params["bg_buffer"] = plot_options["bg_buffer"]
+            
+        if "contour_color" in plot_options:
+            plot_params["contour_color"] = plot_options["contour_color"]
+        if "contour_width" in plot_options:
+            plot_params["contour_width"] = plot_options["contour_width"]
+            
+        # Handle title settings based on display_title and rename parameters
+        if plot_options.get("display_title", False):
+            if "text_annotation" in plot_options:
+                plot_params["title"] = plot_options["text_annotation"]
+            if "text_size" in plot_options:
+                plot_params["text_size"] = plot_options["text_size"]
+            if "text_color" in plot_options:
+                plot_params["text_color"] = plot_options["text_color"]
+            if "text_x" in plot_options:
+                plot_params["x"] = plot_options["text_x"]
+            if "text_y" in plot_options:
+                plot_params["y"] = plot_options["text_y"]
+            if "text_rotation" in plot_options:
+                plot_params["rotation"] = plot_options["text_rotation"]
+        else:
+            plot_params["title"] = None # Explicitly set title to None if not displayed
+
+
     # Create plot
-    fig = Plot(
-        df=df,
-        aoi_bounds=[minx, miny, maxx, maxy],
-        draw_settings=draw_settings,
-        **plot_options if plot_options else {}
-    )
+    fig = Plot(**plot_params)
     
     return fig, df
 
