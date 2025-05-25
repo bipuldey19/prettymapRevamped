@@ -22,11 +22,11 @@ if 'map_fig' not in st.session_state:
 if 'map_data' not in st.session_state:
     st.session_state.map_data = None
 
-# Set page config with reduced width
+# Set page config to wide layout
 st.set_page_config(
     page_title="Prettymapp Generator",
     page_icon="🗺️",
-    layout="centered"
+    layout="wide"
 )
 
 # Title and description
@@ -188,24 +188,6 @@ if st.button("Generate Map", type="primary"):
                     custom_landcover=default_landcover
                 )
                 
-                # Debug: Show a sample of the data
-                st.markdown("#### OSM Data Sample (first 5 rows)")
-                st.write(df.head())
-                st.markdown(f"**Number of features:** {len(df)}")
-                st.markdown(f"**CRS:** {df.crs}")
-                
-                # Debug: Direct plot of the GeoDataFrame
-                st.markdown("#### Direct Plot of OSM Data (for debugging)")
-                import matplotlib.pyplot as plt
-                fig_gdf, ax = plt.subplots(figsize=(6, 6))
-                df.plot(ax=ax)
-                st.pyplot(fig_gdf)
-                plt.close(fig_gdf)
-                
-                # Debug: Show style settings used
-                st.markdown("#### Style Settings Used")
-                st.write(default_style)
-                
                 # Save the map to a temporary file
                 with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp:
                     fig.plot_all().savefig(
@@ -216,7 +198,7 @@ if st.button("Generate Map", type="primary"):
                         facecolor='white'
                     )
                     
-                    # Display the saved image in the container
+                    # Display the saved image
                     st.image(
                         tmp.name,
                         use_container_width=True,
