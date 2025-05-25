@@ -35,12 +35,12 @@ def generate_map(
     # Create a box geometry from bounds
     bbox = box(minx, miny, maxx, maxy)
     
-    # Create AOI from box
-    aoi = get_aoi(bbox)
-    
-    # Get OSM geometries
+    # Get OSM geometries directly using the bounds
     landcover = custom_landcover if custom_landcover else get_default_landcover()
-    df = get_osm_geometries(aoi=aoi, landcover_classes=landcover)
+    df = get_osm_geometries(
+        bbox=[minx, miny, maxx, maxy],
+        landcover_classes=landcover
+    )
     
     # Get style settings
     draw_settings = STYLES[style].copy()
@@ -50,7 +50,7 @@ def generate_map(
     # Create plot
     fig = Plot(
         df=df,
-        aoi_bounds=aoi.bounds,
+        aoi_bounds=[minx, miny, maxx, maxy],
         draw_settings=draw_settings,
     )
     
