@@ -57,8 +57,7 @@ with col:
     # Display the map and capture drawn features
     drawn_data = st_folium(
         m,
-        height=550,
-        width=700,
+        height=500,
         returned_objects=["last_active_drawing"]
     )
     
@@ -134,7 +133,7 @@ with col:
                             f"{key}",
                             value=value,
                             key=f"style_{category}_{key}"
-                        )
+                        ).split(",")
                     elif isinstance(value, list):
                         default_style[category][key] = st.text_input(
                             f"{key} (comma-separated)",
