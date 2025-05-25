@@ -43,7 +43,7 @@ with col:
     
     # Add drawing tools
     folium.plugins.Draw(
-        export=True,
+        export=False,
         position='topleft',
         draw_options={
             'polyline': False,
