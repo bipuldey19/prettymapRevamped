@@ -1,10 +1,10 @@
-streamlit
-prettymapp
-geopandas
-shapely
-folium
-streamlit-folium
+streamlit==1.32.0
+prettymapp==0.4.0
+geopandas==0.14.3
+shapely==2.0.3
+folium==0.15.1
+streamlit-folium==0.15.1
 branca
 numpy
-pandas
+pandas==2.2.3
 matplotlib

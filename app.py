@@ -54,11 +54,11 @@ with st.container():
     st.markdown("Use the drawing tools in the top-left corner to draw a rectangle or circle on the map. This will define the area for your map.")
     
     # Create map with full width
-    m = folium.Map(location=[0, 0], zoom_start=2, width='100%')
+    m = folium.Map(location=[0, 0], zoom_start=2)
     
     # Add drawing tools
     folium.plugins.Draw(
-        export=True,
+        export=False,  # Remove export button
         position='topleft',
         draw_options={
             'polyline': False,
@@ -80,23 +80,6 @@ with st.container():
     # Update session state with drawn polygon
     if drawn_data and drawn_data.get("last_active_drawing"):
         st.session_state.drawn_polygon = drawn_data["last_active_drawing"]
-
-    # Export drawn area button
-    if st.session_state.drawn_polygon:
-        if st.button("Export Drawn Area", type="secondary"):
-            # Convert to GeoJSON and download
-            geom = shape(st.session_state.drawn_polygon)
-            gdf = gpd.GeoDataFrame(geometry=[geom])
-            with tempfile.NamedTemporaryFile(suffix='.geojson', delete=False) as tmp:
-                gdf.to_file(tmp.name, driver='GeoJSON')
-                with open(tmp.name, 'rb') as f:
-                    st.download_button(
-                        "Download Drawn Area",
-                        f,
-                        file_name="drawn_area.geojson",
-                        mime="application/json"
-                    )
-            os.unlink(tmp.name)
 
     # Theme selection
     st.markdown("### Step 3: Choose Map Style")
@@ -201,9 +184,6 @@ with st.container():
                     )
                     st.session_state.map_fig = fig
                     st.session_state.map_data = df
-                    
-                    # Add some space
-                    st.markdown("---")
                     
                     # Display the generated map
                     st.markdown("### Your Generated Map")
