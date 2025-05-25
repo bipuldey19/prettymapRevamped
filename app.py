@@ -116,10 +116,10 @@ with col:
 
     # Additional settings in expandable sections
     with st.expander("Style Settings", expanded=False):
-        # Create columns for style settings
-        style_cols = st.columns(2)
+        # Create columns for style settings (3 columns)
+        style_cols = st.columns(3)
         for i, (category, settings) in enumerate(default_style.items()):
-            with style_cols[i % 2]:
+            with style_cols[i % 3]: # Use modulo 3 for column placement
                 st.markdown(f"#### {category.title()}")
                 for key, value in settings.items():
                     if isinstance(value, (int, float)):
@@ -142,10 +142,10 @@ with col:
                         ).split(",")
 
     with st.expander("Landcover Settings", expanded=False):
-        # Create columns for landcover settings
-        landcover_cols = st.columns(2)
+        # Create columns for landcover settings (3 columns)
+        landcover_cols = st.columns(3)
         for i, (category, settings) in enumerate(default_landcover.items()):
-            with landcover_cols[i % 2]:
+            with landcover_cols[i % 3]: # Use modulo 3 for column placement
                 st.markdown(f"#### {category.title()}")
                 for key, value in settings.items():
                     if isinstance(value, bool):
@@ -177,14 +177,27 @@ with col:
                         "contour_width": contour_width,
                     }
                     
-                    # Add title options if display_title is True
+                    # Add title options if display_title is True, using parameter names from example
                     if display_title:
-                        plot_options["text_annotation"] = custom_title if custom_title else "Map"
-                        plot_options["text_size"] = title_font_size
-                        plot_options["text_color"] = title_font_color
+                        # The example shows custom_title for the text, but doesn't show it passed to Plot
+                        # Let's pass the custom title as a parameter named 'title' for now, based on common practice,
+                        # although previous errors suggest 'title' might not be the text content parameter.
+                        # We will rely on the printout to confirm parameter names if this still fails.
+                        # For now, pass known params from example + custom_title text with a likely name.
+                        if custom_title:
+                            plot_options["title"] = custom_title # Try 'title' for the text content
+                        
+                        plot_options["name_on"] = True # Explicitly set name_on based on checkbox
+                        plot_options["font_size"] = title_font_size
+                        plot_options["font_color"] = title_font_color
                         plot_options["text_x"] = title_x
                         plot_options["text_y"] = title_y
                         plot_options["text_rotation"] = title_rotation
+                        
+                    else:
+                        plot_options["name_on"] = False # Explicitly set name_on based on checkbox
+                        # If title is off, remove any potentially lingering title text parameter
+                        plot_options.pop("title", None)
 
                     fig, df = generate_map(
                         geometry=st.session_state.drawn_polygon,
