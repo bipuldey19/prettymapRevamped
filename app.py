@@ -89,7 +89,7 @@ drawn_data = st_folium(
 
 # Update session state with drawn polygon
 if drawn_data and drawn_data.get("last_active_drawing"):
-    st.session_state.drawn_polygon = drawn_data["last_active_drawing"]
+    st.session_state.drawn_polygon = drawn_data["last_active_drawing"] 
 
 # Theme selection
 st.markdown("### Step 3: Choose Map Style")
