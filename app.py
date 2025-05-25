@@ -58,6 +58,7 @@ with col:
     drawn_data = st_folium(
         m,
         height=400,
+        width=700,
         returned_objects=["last_active_drawing"]
     )
     
