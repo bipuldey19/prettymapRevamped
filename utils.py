@@ -35,10 +35,10 @@ def generate_map(
     # Create a box geometry from bounds
     bbox = box(minx, miny, maxx, maxy)
     
-    # Get OSM geometries directly using the bounds
+    # Get OSM geometries using the box geometry
     landcover = custom_landcover if custom_landcover else get_default_landcover()
     df = get_osm_geometries(
-        bbox=[minx, miny, maxx, maxy],
+        aoi=bbox,
         landcover_classes=landcover
     )
     
