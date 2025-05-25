@@ -33,6 +33,10 @@ def generate_map(
     # Get bounds from geometry
     minx, miny, maxx, maxy = geom.bounds
     
+    # Check if bounds are valid
+    if minx == maxx or miny == maxy:
+        return None, None # Indicate invalid bounds
+
     # Create a box geometry from bounds
     bbox = box(minx, miny, maxx, maxy)
     
@@ -43,6 +47,10 @@ def generate_map(
         landcover_classes=landcover
     )
     
+    # Check if the GeoDataFrame is empty
+    if df.empty:
+        return None, None # Indicate that no data was found
+
     # Get style settings
     draw_settings = STYLES[style].copy()
     if custom_settings:
@@ -95,7 +103,7 @@ def generate_map(
             if "text_rotation" in plot_options:
                 plot_params["text_rotation"] = plot_options["text_rotation"]
 
-    print("Plotting parameters:", plot_params)
+    # print("Plotting parameters:", plot_params)
     # Create plot
     fig = Plot(**plot_params)
     

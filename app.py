@@ -207,41 +207,47 @@ with col:
                         custom_landcover=default_landcover,
                         plot_options=plot_options # Pass plotting options
                     )
-                    st.session_state.map_fig = fig
-                    st.session_state.map_data = df
                     
-                    # Display the generated map
-                    st.pyplot(fig.plot_all())
-                    
-                    # Download buttons in a single row
-                    download_col1, download_col2 = st.columns(2)
-                    with download_col1:
-                        # Save and download the image
-                        with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp:
-                            fig.plot_all().savefig(tmp.name)
-                            with open(tmp.name, 'rb') as f:
-                                st.download_button(
-                                    "Download Map Image",
-                                    f,
-                                    file_name="pretty_map.png",
-                                    mime="image/png",
-                                    use_container_width=True
-                                )
-                        os.unlink(tmp.name)
-                    
-                    with download_col2:
-                        # Save and download the data
-                        with tempfile.NamedTemporaryFile(suffix='.geojson', delete=False) as tmp:
-                            save_map_data(df, tmp.name)
-                            with open(tmp.name, 'rb') as f:
-                                st.download_button(
-                                    "Download Map Data",
-                                    f,
-                                    file_name="map_data.geojson",
-                                    mime="application/json",
-                                    use_container_width=True
-                                )
-                        os.unlink(tmp.name)
+                    if fig is None and df is None:
+                        st.warning("No OpenStreetMap data found for the selected area and settings. Please try drawing a different area or adjusting the landcover settings.")
+                        st.session_state.map_fig = None
+                        st.session_state.map_data = None
+                    else:
+                        st.session_state.map_fig = fig
+                        st.session_state.map_data = df
+                        
+                        # Display the generated map
+                        st.pyplot(fig.plot_all())
+                        
+                        # Download buttons in a single row
+                        download_col1, download_col2 = st.columns(2)
+                        with download_col1:
+                            # Save and download the image
+                            with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp:
+                                fig.plot_all().savefig(tmp.name)
+                                with open(tmp.name, 'rb') as f:
+                                    st.download_button(
+                                        "Download Map Image",
+                                        f,
+                                        file_name="pretty_map.png",
+                                        mime="image/png",
+                                        use_container_width=True
+                                    )
+                            os.unlink(tmp.name)
+                        
+                        with download_col2:
+                            # Save and download the data
+                            with tempfile.NamedTemporaryFile(suffix='.geojson', delete=False) as tmp:
+                                save_map_data(df, tmp.name)
+                                with open(tmp.name, 'rb') as f:
+                                    st.download_button(
+                                        "Download Map Data",
+                                        f,
+                                        file_name="map_data.geojson",
+                                        mime="application/json",
+                                        use_container_width=True
+                                    )
+                            os.unlink(tmp.name)
                         
                 except Exception as e:
                     st.error(f"Error generating map: {str(e)}")
