@@ -23,7 +23,8 @@ def generate_map(
     geometry: Dict[str, Any],
     style: str = "Peach",
     custom_settings: Dict[str, Any] = None,
-    custom_landcover: Dict[str, Any] = None
+    custom_landcover: Dict[str, Any] = None,
+    plot_options: Dict[str, Any] = None
 ) -> Tuple[Plot, gpd.GeoDataFrame]:
     """Generate a prettymap from the given geometry."""
     # Convert GeoJSON to Shapely geometry
@@ -52,6 +53,7 @@ def generate_map(
         df=df,
         aoi_bounds=[minx, miny, maxx, maxy],
         draw_settings=draw_settings,
+        **plot_options if plot_options else {}
     )
     
     return fig, df
