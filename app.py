@@ -180,31 +180,25 @@ if st.button("Generate Map", type="primary"):
     if st.session_state.drawn_polygon:
         with st.spinner("Generating your map..."):
             try:
+                # Generate the map
                 fig, df = generate_map(
                     geometry=st.session_state.drawn_polygon,
                     style=theme,
                     custom_settings=default_style,
                     custom_landcover=default_landcover
                 )
-                st.session_state.map_fig = fig
-                st.session_state.map_data = df
                 
-                # Display the generated map
-                st.markdown("### Your Generated Map")
-                
-                # Create a container for the map
-                map_container = st.container()
-                with map_container:
-                    # Plot the map with proper size
-                    st.pyplot(fig.plot_all(), use_container_width=True)
-                
-                # Download buttons
-                st.markdown("### Download Options")
-                col1, col2 = st.columns(2)
-                with col1:
-                    # Save and download the image
-                    with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp:
-                        fig.plot_all().savefig(tmp.name, dpi=300, bbox_inches='tight')
+                # Save the map to a temporary file
+                with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp:
+                    fig.plot_all().savefig(tmp.name, dpi=300, bbox_inches='tight')
+                    
+                    # Display the saved image
+                    st.image(tmp.name, use_column_width=True)
+                    
+                    # Download buttons
+                    st.markdown("### Download Options")
+                    col1, col2 = st.columns(2)
+                    with col1:
                         with open(tmp.name, 'rb') as f:
                             st.download_button(
                                 "Download Map Image",
@@ -212,19 +206,20 @@ if st.button("Generate Map", type="primary"):
                                 file_name="pretty_map.png",
                                 mime="image/png"
                             )
-                    os.unlink(tmp.name)
-                
-                with col2:
-                    # Save and download the data
-                    with tempfile.NamedTemporaryFile(suffix='.geojson', delete=False) as tmp:
-                        save_map_data(df, tmp.name)
-                        with open(tmp.name, 'rb') as f:
-                            st.download_button(
-                                "Download Map Data",
-                                f,
-                                file_name="map_data.geojson",
-                                mime="application/json"
-                            )
+                    
+                    with col2:
+                        # Save and download the data
+                        with tempfile.NamedTemporaryFile(suffix='.geojson', delete=False) as tmp2:
+                            save_map_data(df, tmp2.name)
+                            with open(tmp2.name, 'rb') as f:
+                                st.download_button(
+                                    "Download Map Data",
+                                    f,
+                                    file_name="map_data.geojson",
+                                    mime="application/json"
+                                )
+                        os.unlink(tmp2.name)
+                    
                     os.unlink(tmp.name)
                     
             except Exception as e:
