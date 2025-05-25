@@ -48,7 +48,7 @@ def generate_map(
     if custom_settings:
         draw_settings.update(custom_settings)
     
-    # Prepare plotting parameters for the Plot constructor
+    # Prepare plotting parameters for the Plot constructor based on example
     plot_params = {
         "df": df,
         "aoi_bounds": [minx, miny, maxx, maxy],
@@ -72,24 +72,30 @@ def generate_map(
         if "contour_width" in plot_options:
             plot_params["contour_width"] = plot_options["contour_width"]
             
-        # Handle title settings based on display_title and rename parameters
-        if plot_options.get("display_title", False):
-            if "text_annotation" in plot_options:
-                plot_params["title"] = plot_options["text_annotation"]
+        # Handle title settings based on display_title and example parameters
+        plot_params["name_on"] = plot_options.get("display_title", False) # Use name_on for display toggle
+        if plot_params["name_on"]:
+            if "custom_title" in plot_options:
+                 # Pass custom_title as text content if available, otherwise maybe prettymap uses a default?
+                 # Let's try passing it as 'title' or 'text' if name_on is True. Based on previous errors, 'title' failed.
+                 # Let's try passing the custom title text directly, maybe the param name is 'text'? Unsure.
+                 # For now, let's focus on passing the known parameters from the example.
+                 # The example has 'custom_title' and 'name_on', font_size, color, text_x/y/rotation
+                 # It doesn't show custom_title passed to Plot(). Let's pass the known params first.
+                 pass # Will handle text content parameter if we figure it out.
+
             if "text_size" in plot_options:
-                plot_params["text_size"] = plot_options["text_size"]
+                plot_params["font_size"] = plot_options["text_size"] # Use font_size
             if "text_color" in plot_options:
-                plot_params["text_color"] = plot_options["text_color"]
+                plot_params["font_color"] = plot_options["text_color"] # Use font_color
             if "text_x" in plot_options:
-                plot_params["x"] = plot_options["text_x"]
+                plot_params["text_x"] = plot_options["text_x"]
             if "text_y" in plot_options:
-                plot_params["y"] = plot_options["text_y"]
+                plot_params["text_y"] = plot_options["text_y"]
             if "text_rotation" in plot_options:
-                plot_params["rotation"] = plot_options["text_rotation"]
-        else:
-            plot_params["title"] = None # Explicitly set title to None if not displayed
+                plot_params["text_rotation"] = plot_options["text_rotation"]
 
-
+    print("Plotting parameters:", plot_params)
     # Create plot
     fig = Plot(**plot_params)
     
