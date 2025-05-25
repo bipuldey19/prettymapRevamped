@@ -1,7 +1,7 @@
 import json
 from typing import Dict, Any, List, Tuple
 import geopandas as gpd
-from shapely.geometry import Polygon, shape, mapping
+from shapely.geometry import Polygon, shape, mapping, box
 from prettymapp.geo import get_aoi
 from prettymapp.osm import get_osm_geometries
 from prettymapp.plotting import Plot
@@ -32,11 +32,11 @@ def generate_map(
     # Get bounds from geometry
     minx, miny, maxx, maxy = geom.bounds
     
-    # Create AOI from bounds
-    aoi = get_aoi(
-        bbox=[minx, miny, maxx, maxy],
-        rectangular=True
-    )
+    # Create a box geometry from bounds
+    bbox = box(minx, miny, maxx, maxy)
+    
+    # Create AOI from box
+    aoi = get_aoi(bbox)
     
     # Get OSM geometries
     landcover = custom_landcover if custom_landcover else get_default_landcover()
