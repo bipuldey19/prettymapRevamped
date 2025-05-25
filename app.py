@@ -4,6 +4,8 @@ from streamlit_folium import st_folium
 import json
 import tempfile
 import os
+import geopandas as gpd
+from shapely.geometry import shape
 from utils import (
     get_available_themes,
     get_default_style,
@@ -12,14 +14,34 @@ from utils import (
     save_map_data
 )
 
+# Set page config
 st.set_page_config(
     page_title="Prettymapp Generator",
     page_icon="🗺️",
     layout="wide"
 )
 
+# Custom CSS
+st.markdown("""
+    <style>
+    .main {
+        padding: 2rem;
+    }
+    .stButton>button {
+        width: 100%;
+        margin-top: 1rem;
+    }
+    .upload-section {
+        background-color: #f0f2f6;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 st.title("🗺️ Prettymapp Generator")
-st.markdown("Create beautiful maps from OpenStreetMap data using an interactive map interface.")
+st.markdown("Create beautiful maps from OpenStreetMap data using an interactive map interface or upload your own boundary files.")
 
 # Initialize session state
 if 'drawn_polygon' not in st.session_state:
@@ -33,8 +55,33 @@ if 'map_data' not in st.session_state:
 col1, col2 = st.columns([2, 1])
 
 with col1:
-    st.subheader("Draw Area")
-    # Create a map centered at a default location
+    st.subheader("Define Area")
+    
+    # File upload section
+    st.markdown('<div class="upload-section">', unsafe_allow_html=True)
+    st.markdown("### Upload Boundary File")
+    uploaded_file = st.file_uploader(
+        "Upload KML or Shapefile",
+        type=['kml', 'shp', 'zip'],
+        help="Upload a KML file or a zipped Shapefile"
+    )
+    
+    if uploaded_file:
+        try:
+            if uploaded_file.name.endswith('.kml'):
+                gdf = gpd.read_file(uploaded_file, driver='KML')
+            else:  # Shapefile
+                gdf = gpd.read_file(uploaded_file)
+            
+            # Convert to GeoJSON
+            st.session_state.drawn_polygon = json.loads(gdf.to_json())['features'][0]['geometry']
+            st.success("File uploaded successfully!")
+        except Exception as e:
+            st.error(f"Error reading file: {str(e)}")
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Map section
+    st.markdown("### Draw on Map")
     m = folium.Map(location=[0, 0], zoom_start=2)
     
     # Add drawing tools
@@ -53,7 +100,7 @@ with col1:
     # Display the map and capture drawn features
     drawn_data = st_folium(
         m,
-        height=600,
+        height=500,
         returned_objects=["last_active_drawing"]
     )
     
@@ -62,7 +109,7 @@ with col1:
         st.session_state.drawn_polygon = drawn_data["last_active_drawing"]
 
 with col2:
-    st.subheader("Settings")
+    st.subheader("Map Settings")
     
     # Theme selection
     theme = st.selectbox(
@@ -71,59 +118,75 @@ with col2:
         index=0
     )
     
-    # Additional settings
-    st.markdown("### Additional Settings")
-    
-    # Style settings
-    st.markdown("#### Style Settings")
-    default_style = get_default_style()
-    
-    # Create expandable sections for each style category
-    for category, settings in default_style.items():
-        with st.expander(f"{category.title()} Settings"):
-            for key, value in settings.items():
-                if isinstance(value, (int, float)):
-                    default_style[category][key] = st.number_input(
-                        f"{key}",
-                        value=value,
-                        key=f"style_{category}_{key}"
-                    )
-                elif isinstance(value, str):
-                    default_style[category][key] = st.text_input(
-                        f"{key}",
-                        value=value,
-                        key=f"style_{category}_{key}"
-                    )
-                elif isinstance(value, list):
-                    default_style[category][key] = st.text_input(
-                        f"{key} (comma-separated)",
-                        value=",".join(value),
-                        key=f"style_{category}_{key}"
-                    ).split(",")
-    
-    # Landcover settings
-    st.markdown("#### Landcover Settings")
-    default_landcover = get_default_landcover()
-    
-    for category, settings in default_landcover.items():
-        with st.expander(f"{category.title()} Landcover"):
-            for key, value in settings.items():
-                if isinstance(value, bool):
-                    default_landcover[category][key] = st.checkbox(
-                        f"{key}",
-                        value=value,
-                        key=f"landcover_{category}_{key}"
-                    )
-                elif isinstance(value, list):
-                    default_landcover[category][key] = st.multiselect(
-                        f"{key}",
-                        options=value,
-                        default=value,
-                        key=f"landcover_{category}_{key}"
-                    )
+    # Additional settings in an expander
+    with st.expander("Advanced Settings", expanded=False):
+        # Style settings
+        st.markdown("#### Style Settings")
+        default_style = get_default_style()
+        
+        # Create expandable sections for each style category
+        for category, settings in default_style.items():
+            with st.expander(f"{category.title()} Settings", expanded=False):
+                for key, value in settings.items():
+                    if isinstance(value, (int, float)):
+                        default_style[category][key] = st.number_input(
+                            f"{key}",
+                            value=value,
+                            key=f"style_{category}_{key}"
+                        )
+                    elif isinstance(value, str) and value.startswith('#'):
+                        # Color picker for hex colors
+                        default_style[category][key] = st.color_picker(
+                            f"{key}",
+                            value=value,
+                            key=f"style_{category}_{key}"
+                        )
+                    elif isinstance(value, str):
+                        default_style[category][key] = st.text_input(
+                            f"{key}",
+                            value=value,
+                            key=f"style_{category}_{key}"
+                        )
+                    elif isinstance(value, list):
+                        if all(isinstance(x, str) and x.startswith('#') for x in value):
+                            # Color picker for lists of hex colors
+                            colors = st.multiselect(
+                                f"{key}",
+                                options=value,
+                                default=value,
+                                key=f"style_{category}_{key}"
+                            )
+                            default_style[category][key] = colors if colors else value
+                        else:
+                            default_style[category][key] = st.text_input(
+                                f"{key} (comma-separated)",
+                                value=",".join(value),
+                                key=f"style_{category}_{key}"
+                            ).split(",")
+        
+        # Landcover settings
+        st.markdown("#### Landcover Settings")
+        default_landcover = get_default_landcover()
+        
+        for category, settings in default_landcover.items():
+            with st.expander(f"{category.title()} Landcover", expanded=False):
+                for key, value in settings.items():
+                    if isinstance(value, bool):
+                        default_landcover[category][key] = st.checkbox(
+                            f"{key}",
+                            value=value,
+                            key=f"landcover_{category}_{key}"
+                        )
+                    elif isinstance(value, list):
+                        default_landcover[category][key] = st.multiselect(
+                            f"{key}",
+                            options=value,
+                            default=value,
+                            key=f"landcover_{category}_{key}"
+                        )
 
 # Generate map button
-if st.button("Generate Map"):
+if st.button("Generate Map", type="primary"):
     if st.session_state.drawn_polygon:
         with st.spinner("Generating map..."):
             try:
@@ -170,4 +233,4 @@ if st.button("Generate Map"):
             except Exception as e:
                 st.error(f"Error generating map: {str(e)}")
     else:
-        st.warning("Please draw an area on the map first.") 
+        st.warning("Please draw an area on the map or upload a boundary file first.") 
